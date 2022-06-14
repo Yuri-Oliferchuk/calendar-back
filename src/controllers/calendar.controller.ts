@@ -1,17 +1,22 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { Op } from "sequelize";
 import { Calendar } from "../db/calendar";
 import { Users } from "../db/users";
 import { createMultiEventObject } from "../utils/date.utils";
 
-
 class CalendarController {
+    async getAllUsers(req: Request, res: Response, next: NextFunction) {
+        
+        let result = await Users.findAll()
+        res.status(200).json(result)
+    }
+
     async getAllEvents(req: Request, res: Response) {
         
         let result = await Calendar.findAll({
             include: {
                 model: Users,
-                attributes: { exclude: ['id'] },
+                attributes: { exclude: ['id', 'email'] },
               },
             attributes: { exclude: ['usersid'] },
             order: [
@@ -29,8 +34,12 @@ class CalendarController {
             where: {
                 id: id,
               },
+              raw: true
         })
-        res.status(200).json(result)
+        if(result && result.length) {
+            return res.status(200).json(result)
+        }
+        res.status(404).end()
     }
 
     async getByPeriod(req: Request, res: Response) {
@@ -40,7 +49,7 @@ class CalendarController {
         let result = await Calendar.findAll({
             include: {
                 model: Users,
-                attributes: { exclude: ['id'] },
+                attributes: { exclude: ['id', 'email'] },
               },
             attributes: { exclude: ['usersid'] },
             where: {
@@ -69,9 +78,11 @@ class CalendarController {
             period: req.body.period,
             exclude: req.body.exclude
         }
-        const newEvent = await Calendar.create(data)
-
-        res.status(201).json(newEvent)
+        if(req.body.date&&req.body.time&&req.body.event&&req.body.usersid) {
+            const newEvent = await Calendar.create(data)
+            return res.status(201).json(newEvent)
+        }
+        return res.status(400).end()
     }
 
     async updateEvent(req: Request, res: Response) {
@@ -82,18 +93,21 @@ class CalendarController {
               },
         })
 
-        if(result!) {
-           await result.update({
-                date: req.body.date,
-                time: req.body.time,
-                event: req.body.event,
-                usersid: req.body.usersid,
-                period: req.body.period,
-                exclude: req.body.exclude
-            })
-            
+        const data = {
+            date: req.body.date,
+            time: req.body.time,
+            event: req.body.event,
+            usersid: req.body.usersid,
+            period: req.body.period,
+            exclude: req.body.exclude
         }
-        res.status(201).json(result)
+
+        if(result) {
+           await result.update(data) 
+           return res.status(201).json(result)
+        }
+        
+        res.status(404).end()
     }
 
     async deleteEvent(req: Request, res: Response) {
