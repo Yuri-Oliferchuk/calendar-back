@@ -38,7 +38,7 @@ const Calendar: ModelDefined<CalendarAtributes, CalendarCreationAttributes> = db
         defaultValue: null
     },
     exclude:{
-        type: DataTypes.INTEGER,
+        type: DataTypes.DATEONLY,
         allowNull: true,
         defaultValue: null
     },
