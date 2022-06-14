@@ -1,19 +1,33 @@
 import bodyParser from "body-parser";
 import express from "express";
 import { api } from "./api/api";
+import swaggerUI from "swagger-ui-express";
+import swaggerJsDoc from "swagger-jsdoc"
+
+const swaggerOptions = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "Calendar API",
+            version: "1.0.0",
+            description: "Swagger Calendar API"
+        },
+        servers: [{
+            url: "http://localhost:3000"
+        }],
+    },
+    apis: ["**/*.ts"]
+}
+const specs = swaggerJsDoc(swaggerOptions)
 
 const app = express()
 const PORT = process.env.PORT || 3000
 
-// add body-parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/api', api)
-
-app.get('/', (req, res) => {
-    res.send('Hello world!!!!')
-})
+app.use('/', swaggerUI.serve, swaggerUI.setup(specs))
 
 app.listen(PORT, () => {
     console.log(`Server started \nhttp://localhost:${PORT}/`)
