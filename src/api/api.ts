@@ -1,7 +1,7 @@
 import express from 'express';
 import CalendarController from '../controllers/calendar.controller';
 
-const api = express.Router();
+export const api = express.Router();
 
 /**
  * @swagger
@@ -22,10 +22,23 @@ const api = express.Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Calendar'
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Calendar'
+ *                 message: 
+ *                   type: string
+ *                   description: Status message
+ *                   example: All events getted
+ *                 code:
+ *                   type: number
+ *                   description: 0 - OK, 1 - something wrong
+ *                   example: 0
+ *               
  */
+// api.get<Params,ResBody,ReqBody,ReqQuery,Locals>('/calendar/', CalendarController.getAllEvents)APIResponse<ICalendarAtributes>
 api.get('/calendar/', CalendarController.getAllEvents)
 /**
  * @swagger
@@ -54,9 +67,20 @@ api.get('/calendar/', CalendarController.getAllEvents)
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Calendar'
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Calendar'
+ *                 message: 
+ *                   type: string
+ *                   description: Status message
+ *                   example: All events by period getted
+ *                 code:
+ *                   type: number
+ *                   description: 0 - OK, 1 - something wrong
+ *                   example: 0
  */
 api.get('/calendar/period/', CalendarController.getByPeriod)
 /**
@@ -78,9 +102,35 @@ api.get('/calendar/period/', CalendarController.getByPeriod)
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Calendar'
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Calendar'
+ *                 message: 
+ *                   type: string
+ *                   description: Status message
+ *                   example: Event getted
+ *                 code:
+ *                   type: number
+ *                   description: 0 - OK, 1 - something wrong
+ *                   example: 0
  *       404:
  *         description: Event was not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: 
+ *                   type: string
+ *                   description: Status message
+ *                   example: No event with id:0
+ *                 code:
+ *                   type: number
+ *                   description: 0 - OK, 1 - something wrong
+ *                   example: 1
  */
 api.get('/calendar/:id', CalendarController.getEventById)
 /**
@@ -101,9 +151,35 @@ api.get('/calendar/:id', CalendarController.getEventById)
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Calendar'
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Calendar'
+ *                 message: 
+ *                   type: string
+ *                   description: Status message
+ *                   example: Event was created
+ *                 code:
+ *                   type: number
+ *                   description: 0 - OK, 1 - something wrong
+ *                   example: 0
  *       400:
  *         description: Wrong data in the body
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: 
+ *                   type: string
+ *                   description: Status message
+ *                   example: Something wrong
+ *                 code:
+ *                   type: number
+ *                   description: 0 - OK, 1 - something wrong
+ *                   example: 1
  */
 api.post('/calendar/', CalendarController.postEvent)
 /**
@@ -131,7 +207,20 @@ api.post('/calendar/', CalendarController.postEvent)
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Calendar'
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Calendar'
+ *                 message: 
+ *                   type: string
+ *                   description: Status message
+ *                   example: Event was updated
+ *                 code:
+ *                   type: number
+ *                   description: 0 - OK, 1 - something wrong
+ *                   example: 0
  *       400:
  *         description: Only one day can be excluded
  *         content:
@@ -139,12 +228,29 @@ api.post('/calendar/', CalendarController.postEvent)
  *             schema:
  *               type: object
  *               properties:
- *                 message:
+ *                 message: 
  *                   type: string
- *                   description: Error message
- *                   example: 'Only one day can be excluded'            
+ *                   description: Status message
+ *                   example: Only one day can be excluded
+ *                 code:
+ *                   type: number
+ *                   description: 0 - OK, 1 - something wrong
+ *                   example: 1            
  *       404:
  *         description: Event not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: 
+ *                   type: string
+ *                   description: Status message
+ *                   example: Event not found
+ *                 code:
+ *                   type: number
+ *                   description: 0 - OK, 1 - something wrong
+ *                   example: 1 
  */
 api.put('/calendar/:id', CalendarController.updateEvent)
 /**
@@ -168,10 +274,14 @@ api.put('/calendar/:id', CalendarController.updateEvent)
  *             schema:
  *               type: object
  *               properties:
- *                 message:
+ *                 message: 
  *                   type: string
- *                   description: Message
- *                   example: 'deleted'
+ *                   description: Status message
+ *                   example: Deleted
+ *                 code:
+ *                   type: number
+ *                   description: 0 - OK, 1 - something wrong
+ *                   example: 0 
  *       404:
  *         description: Event not found
  *         content:
@@ -179,14 +289,16 @@ api.put('/calendar/:id', CalendarController.updateEvent)
  *             schema:
  *               type: object
  *               properties:
- *                 message:
+ *                 message: 
  *                   type: string
- *                   description: Error message
- *                   example: 'No event for delete'
+ *                   description: Status message
+ *                   example: Event not found
+ *                 code:
+ *                   type: number
+ *                   description: 0 - OK, 1 - something wrong
+ *                   example: 1
  */
 api.delete('/calendar/:id', CalendarController.deleteEvent)
-
-export {api}
 
 /**
 *@swagger

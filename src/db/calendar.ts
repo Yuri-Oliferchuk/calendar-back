@@ -1,19 +1,10 @@
 import { DataTypes, ModelDefined, Optional } from "sequelize";
 import { db } from "../config/db-config";
+import { ICalendarAtributes } from "../Interface/api.interface";
 
-export type CalendarAtributes = {
-    id: number
-    date: string | Date
-    time: string
-    event: string
-    period: 'day' | 'week' | 'two-week' | 'month' | null
-    exclude: string | Date | null
-    author: string | null
-}
-
-type CalendarCreationAttributes = Optional<CalendarAtributes, 'id' | 'period' | 'exclude'>;
+type CalendarCreationAttributes = Optional<ICalendarAtributes, 'id' | 'period' | 'exclude'>;
   
-const Calendar: ModelDefined<CalendarAtributes, CalendarCreationAttributes> = db.define('calendar', {
+export const Calendar: ModelDefined<ICalendarAtributes, CalendarCreationAttributes> = db.define('calendar', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -51,5 +42,3 @@ const Calendar: ModelDefined<CalendarAtributes, CalendarCreationAttributes> = db
     timestamps: false,
     tableName: 'calendar'
   })
-
-export {Calendar}

@@ -1,11 +1,11 @@
-import { CalendarAtributes } from "../db/calendar"
+import { ICalendarAtributes } from "../Interface/api.interface"
 
-export const dateFormater = (date: Date) => {
+export const dateFormater = (date: Date): string => {
     return date.getFullYear() + "-" + ("0"+(date.getMonth()+1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2)
 }
 
-export const createMultiEventObject = (objectArray: CalendarAtributes[], from: string, to: string): CalendarAtributes[] => {
-    const result: CalendarAtributes[] = []
+export const createMultiEventObject = (objectArray: ICalendarAtributes[], from: string, to: string): ICalendarAtributes[] => {
+    const result: ICalendarAtributes[] = []
     objectArray.forEach((item) => {
         if(!item.period) {
             return result.push({...item})

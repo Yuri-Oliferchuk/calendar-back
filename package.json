@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nodemon src/index.ts",
-    "watch": "tsc -w",
+    "build": "tsc",
     "test": "jest"
   },
   "dependencies": {

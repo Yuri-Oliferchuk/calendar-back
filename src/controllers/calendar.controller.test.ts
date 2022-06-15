@@ -12,6 +12,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api', api);
 
+const checkResponse = (response: request.Response) => {
+    expect(typeof response.body).toBe('object')
+    expect(Array.isArray(response.body.data)).toBe(true)
+    expect(response.body).toHaveProperty('message')
+    expect(response.body).toHaveProperty('code')
+    expect(response.body.data[0]).toHaveProperty('id')
+    expect(response.body.data[0]).toHaveProperty('date')
+    expect(response.body.data[0]).toHaveProperty('time')
+    expect(response.body.data[0]).toHaveProperty('event')
+    expect(response.body.data[0]).toHaveProperty('period')
+    expect(response.body.data[0]).toHaveProperty('exclude')
+}
 
 describe('API testing', () => {
     afterAll(() => { db.close() })
@@ -22,13 +34,7 @@ describe('API testing', () => {
         })
         it('should have right object in response', async () => {
             const response = await request(app).get('/api/calendar');
-            expect(Array.isArray(response.body)).toBe(true)
-            expect(response.body[0]).toHaveProperty('id')
-            expect(response.body[0]).toHaveProperty('date')
-            expect(response.body[0]).toHaveProperty('time')
-            expect(response.body[0]).toHaveProperty('event')
-            expect(response.body[0]).toHaveProperty('period')
-            expect(response.body[0]).toHaveProperty('exclude')
+            
         })
         it('should call DB one time', async () => {
             jest.spyOn(Calendar, 'findAll')
@@ -47,14 +53,7 @@ describe('API testing', () => {
         })
         it('should have right object in response', async () => {
             const response = await request(app).get('/api/calendar/1');
-            expect(Array.isArray(response.body)).toBe(true)
-            expect(response.body[0]).toHaveProperty('id')
-            expect(response.body[0]).toHaveProperty('date')
-            expect(response.body[0]).toHaveProperty('time')
-            expect(response.body[0]).toHaveProperty('event')
-            expect(response.body[0]).toHaveProperty('period')
-            expect(response.body[0]).toHaveProperty('exclude')
-            expect(response.body[0]).toHaveProperty('author')
+            checkResponse(response)
         })
         it('should call DB one time', async () => {
             jest.spyOn(Calendar, 'findAll')
@@ -77,19 +76,12 @@ describe('API testing', () => {
             const emptyDate = '2020-06-23'
             const response = await request(app).get(`/api/calendar/period?from=${emptyDate}`);
             expect(response.statusCode).toEqual(200)
-            expect(Array.isArray(response.body)).toBe(true)
-            expect(response.body.length).toBe(0)
+            expect(Array.isArray(response.body.data)).toBe(true)
+            expect(response.body.data.length).toBe(0)
         })
         it('should have right object in response', async () => {
             const response = await request(app).get(`/api/calendar/period?from=${from}`);
-            expect(Array.isArray(response.body)).toBe(true)
-            expect(response.body[0]).toHaveProperty('id')
-            expect(response.body[0]).toHaveProperty('date')
-            expect(response.body[0]).toHaveProperty('time')
-            expect(response.body[0]).toHaveProperty('event')
-            expect(response.body[0]).toHaveProperty('period')
-            expect(response.body[0]).toHaveProperty('exclude')
-            expect(response.body[0]).toHaveProperty('author')
+            checkResponse(response)
         })
         it('should call DB one time', async () => {
             jest.spyOn(Calendar, 'findAll')
@@ -109,7 +101,7 @@ describe('API testing', () => {
                     author: 'Hi'
             }
             const response = await request(app).post('/api/calendar/').send(sendObject)
-            const delResponse = await request(app).delete(`/api/calendar/${response.body.id}`)
+            const delResponse = await request(app).delete(`/api/calendar/${response.body.data[0].id}`)
             expect(response.statusCode).toEqual(201)
             expect(delResponse.statusCode).toEqual(200)
         })
@@ -131,23 +123,16 @@ describe('API testing', () => {
                 author: 'Hi'
             }
             const response = await request(app).post('/api/calendar/').send(sendObject)
-            const delResponse = await request(app).delete(`/api/calendar/${response.body.id}`)
+            const delResponse = await request(app).delete(`/api/calendar/${response.body.data[0].id}`)
             expect(response.statusCode).toEqual(201)
             expect(delResponse.statusCode).toEqual(200)
-            expect(typeof response.body).toBe('object')
-            expect(response.body).toHaveProperty('id')
-            expect(response.body).toHaveProperty('date')
-            expect(response.body).toHaveProperty('time')
-            expect(response.body).toHaveProperty('event')
-            expect(response.body).toHaveProperty('period')
-            expect(response.body).toHaveProperty('exclude')
-            expect(response.body).toHaveProperty('author')
+            checkResponse(response)
         })
     })
     describe('PUT /calendar/:id', () => {
         it('should return status 201', async () => {
             const response = await request(app).get('/api/calendar/1')
-            const putResponse = await request(app).put(`/api/calendar/${response.body[0].id}`).send({...response.body[0]})
+            const putResponse = await request(app).put(`/api/calendar/${response.body.data[0].id}`).send({...response.body.data[0]})
             expect(putResponse.statusCode).toEqual(201)
         })
         it('should return status 404 if no event', async () => {
@@ -166,25 +151,18 @@ describe('API testing', () => {
                 author: 'Hi'
             }
             const createResponse = await request(app).post('/api/calendar/').send(sendObject)
-            const putResponse = await request(app).put(`/api/calendar/${createResponse.body.id}`)
-                .send({...createResponse.body, exclude: "2022-11-11"})
-            const delResponse = await request(app).delete(`/api/calendar/${createResponse.body.id}`)
+            const putResponse = await request(app).put(`/api/calendar/${createResponse.body.data[0].id}`)
+                .send({...createResponse.body.data, exclude: "2022-11-11"})
+            const delResponse = await request(app).delete(`/api/calendar/${createResponse.body.data[0].id}`)
             expect(createResponse.statusCode).toEqual(201)
             expect(delResponse.statusCode).toEqual(200)
             expect(putResponse.statusCode).toEqual(400)
         })
         it('should have right object in response', async () => {
             const response = await request(app).get('/api/calendar/1')
-            const putResponse = await request(app).put(`/api/calendar/${response.body[0].id}`).send({...response.body[0]})
+            const putResponse = await request(app).put(`/api/calendar/${response.body.data[0].id}`).send({...response.body.data[0]})
             expect(putResponse.statusCode).toEqual(201)
-            expect(typeof putResponse.body).toBe('object')
-            expect(putResponse.body).toHaveProperty('id')
-            expect(putResponse.body).toHaveProperty('date')
-            expect(putResponse.body).toHaveProperty('time')
-            expect(putResponse.body).toHaveProperty('event')
-            expect(putResponse.body).toHaveProperty('period')
-            expect(putResponse.body).toHaveProperty('exclude')
-            expect(response.body[0]).toHaveProperty('author')
+            checkResponse(putResponse)
         })
     })
     describe('DELETE /calendar/:id', () => {
@@ -199,8 +177,8 @@ describe('API testing', () => {
                     author: 'Hi'
             }
             const response = await request(app).post('/api/calendar/').send(sendObject)
-            const delResponse = await request(app).delete(`/api/calendar/${response.body.id}`)
-            expect(delResponse.statusCode).toEqual(200)
+            const delResponse = await request(app).delete(`/api/calendar/${response.body.data[0].id}`)
+            expect(response.statusCode).toEqual(201)
             expect(delResponse.statusCode).toEqual(200)
         })
         it('should return status 404 if no event', async () => {
